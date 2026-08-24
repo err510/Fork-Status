@@ -1,0 +1,33 @@
+name: Fork Status Notifier
+
+on:
+  schedule:
+    # UTC 11:00 对应北京/新加坡时间 19:00
+    - cron: '0 11 * * *'
+  workflow_dispatch: # 允许你随时在页面上手动点击运行测试
+
+jobs:
+  check-and-notify:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.10'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install requests
+
+    - name: Run check script
+      env:
+        GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        CORPID: ${{ secrets.CORPID }}
+        CORPSECRET: ${{ secrets.CORPSECRET }}
+        AGENTID: ${{ secrets.AGENTID }}
+      run: python check_forks.py

@@ -1,6 +1,6 @@
 # 🔄 Fork Status Notifier & Auto Sync
 
-基于 GitHub Actions 与 Python 实现的 Fork 仓库状态监控与自动同步工具。每天晚上 19:00（北京时间）自动检查名下的所有 Fork 仓库，比对上游更新，自动拉取同步并推送纯文本汇总通知至企业微信。
+基于 GitHub Actions 与 Python 实现的 Fork 仓库状态监控与自动同步工具。每天晚上 19:00（北京时间）自动检查名下的所有 Fork 仓库，比对上游更新，自动拉取同步并推送纯文本汇总通知。
 
 ---
 
@@ -54,3 +54,10 @@
 ├── check_forks.py        # 核心检查与同步 Python 脚本
 └── README.md             # 项目说明文档
 
+---
+
+## 💬 补充说明
+
+默认是发送消息到企业微信，倘若想直接在微信里显示通知，则**打开企业微信** -> **我的企业** -> **微信插件** -> **扫描二维码** 。接下来即可直接在微信收到企业微信的消息通知。
+
+<img width="1444" height="1364" alt="CleanShot 2026-08-24 at 14 20 10@2x" src="https://github.com/user-attachments/assets/2493d802-9c36-46db-8487-3bf6b66c9b99" />

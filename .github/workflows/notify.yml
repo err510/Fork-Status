@@ -30,4 +30,6 @@ jobs:
         CORPID: ${{ secrets.CORPID }}
         CORPSECRET: ${{ secrets.CORPSECRET }}
         AGENTID: ${{ secrets.AGENTID }}
+        # 在这里填入你想排除的仓库名，逗号分隔，例如：my-repo1,my-repo2
+        EXCLUDE_REPOS: 'fork-SullyOS'
       run: python check_forks.py

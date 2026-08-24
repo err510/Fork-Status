@@ -1,3 +1,6 @@
+# 路径为.github/workflows/notify.yml
+# 使用之前取消除注释之外的代码注释符号，并将其移至.github/workflows/notify.yml
+
 # name: Fork Status Notifier
 
 # on:

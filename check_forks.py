@@ -78,7 +78,7 @@ def main():
                 sync_payload = {"branch": default_branch}
                 sync_res = requests.post(sync_url, headers=GH_HEADERS, json=sync_payload)
 
-            if sync_res.status_code == 200:
+                if sync_res.status_code == 200:
                     status = f"<font color=\"info\">🟢 自动同步成功 (原落后 {behind_by} 个提交)</font>"
                 elif sync_res.status_code == 409:
                     status = f"<font color=\"warning\">❌ 同步失败：存在代码冲突，需手动解决</font>"

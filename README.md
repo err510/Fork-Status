@@ -53,6 +53,7 @@
 │       └── notify.yml    # GitHub Actions 定时任务配置
 ├── check_forks.py        # 核心检查与同步 Python 脚本
 └── README.md             # 项目说明文档
+```
 
 ---
 

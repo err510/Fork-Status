@@ -7,6 +7,8 @@ GH_TOKEN = os.environ.get('GH_TOKEN')
 CORPID = os.environ.get('CORPID')
 CORPSECRET = os.environ.get('CORPSECRET')
 AGENTID = os.environ.get('AGENTID')
+# 解析排除名单（忽略空格）
+EXCLUDE_REPOS = [r.strip() for r in os.environ.get('EXCLUDE_REPOS', '').split(',') if r.strip()]
 
 GH_HEADERS = {
     'Authorization': f'token {GH_TOKEN}',
@@ -34,7 +36,7 @@ def main():
     username = user_info['login']
 
     # 2. 获取所有仓库并筛选 Fork
-    repos_url = f"https://api.github.com/user/repos?type=owner&per_page=100"
+    repos_url = f"https://api.github.com/user/repos?type=owner&per_page=200"
     repos = requests.get(repos_url, headers=GH_HEADERS).json()
     forks = [r for r in repos if r.get('fork')]
 
@@ -67,9 +69,23 @@ def main():
         behind_by = compare_res.get('ahead_by', 0)
         
         if behind_by > 0:
-            status = f"<font color=\"warning\">🔴 落后 {behind_by} 个提交</font>"
+            if repo_name in EXCLUDE_REPOS:
+                # 在排除名单中，仅提醒
+                status = f"<font color=\"warning\">🔴 落后 {behind_by} 个提交 (已设置免同步)</font>"
+            else:
+                # 不在排除名单中，执行自动同步
+                sync_url = f"https://api.github.com/repos/{username}/{repo_name}/merge-upstream"
+                sync_payload = {"branch": default_branch}
+                sync_res = requests.post(sync_url, headers=GH_HEADERS, json=sync_payload)
+
+            if sync_res.status_code == 200:
+                    status = f"<font color=\"info\">🟢 自动同步成功 (原落后 {behind_by} 个提交)</font>"
+                elif sync_res.status_code == 409:
+                    status = f"<font color=\"warning\">❌ 同步失败：存在代码冲突，需手动解决</font>"
+                else:
+                    status = f"<font color=\"comment\">⚠️ 同步请求异常: 状态码 {sync_res.status_code}</font>"
         else:
-            status = "<font color=\"info\">🟢 已同步</font>"
+            status = "<font color=\"info\">🟢 已是最新</font>"
 
         msg_lines.append(f"- [{repo_name}]({fork['html_url']}): 最后更新 `{updated_at}`, {status}")
 

@@ -27,5 +27,8 @@ jobs:
       env:
         GH_TOKEN: ${{ secrets.GH_TOKEN }}
         WECHAT_WEBHOOK: ${{ secrets.WECHAT_WEBHOOK }}
-        EXCLUDE_REPOS: 'fork-SullyOS'
+        # 1. 不在微信中输出状态的仓库名单（逗号分隔）
+        EXCLUDE_STATUS_REPOS: 'CloudPaste,excalidraw'
+        # 2. 不自动同步的仓库名单（逗号分隔）
+        EXCLUDE_SYNC_REPOS: 'fork-SullyOS,CloudPaste,excalidraw'
       run: python check_forks.py

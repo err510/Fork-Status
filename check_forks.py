@@ -17,8 +17,17 @@ GH_HEADERS = {
 
 def get_wechat_token():
     url = f"https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid={CORPID}&corpsecret={CORPSECRET}"
-    resp = requests.get(url).json()
-    return resp.get('access_token')
+    try:
+        resp = requests.get(url).json()
+        print(f"[调试] 获取微信 Token 接口返回: {resp}")
+        if resp.get('errcode') == 0:
+            return resp.get('access_token')
+        else:
+            print(f"[错误] 获取 Token 失败: {resp.get('errmsg')}")
+            return None
+    except Exception as e:
+        print(f"[异常] 请求微信 Token 报错: {e}")
+        return None
 
 def send_wechat_msg(token, content):
     url = f"https://qyapi.weixin.qq.com/cgi-bin/message/send?access_token={token}"
@@ -28,7 +37,13 @@ def send_wechat_msg(token, content):
         "agentid": int(AGENTID),
         "markdown": {"content": content}
     }
-    requests.post(url, json=payload)
+    try:
+        resp = requests.post(url, json=payload).json()
+        print(f"[调试] 发送微信消息接口返回: {resp}")
+        return resp
+    except Exception as e:
+        print(f"[异常] 发送微信消息报错: {e}")
+        return None
 
 def main():
     # 1. 获取当前用户
@@ -93,9 +108,8 @@ def main():
     wx_token = get_wechat_token()
     if wx_token:
         send_wechat_msg(wx_token, "\n".join(msg_lines))
-        print("消息推送成功！")
     else:
-        print("获取企业微信 Token 失败！")
+        print("未获取到有效的企业微信 Token，跳过发送消息。")
 
 if __name__ == "__main__":
     main()

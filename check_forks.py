@@ -1,0 +1,85 @@
+import os
+import requests
+from datetime import datetime, timezone, timedelta
+
+# 环境变量读取
+GH_TOKEN = os.environ.get('GH_TOKEN')
+CORPID = os.environ.get('CORPID')
+CORPSECRET = os.environ.get('CORPSECRET')
+AGENTID = os.environ.get('AGENTID')
+
+GH_HEADERS = {
+    'Authorization': f'token {GH_TOKEN}',
+    'Accept': 'application/vnd.github.v3+json'
+}
+
+def get_wechat_token():
+    url = f"https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid={CORPID}&corpsecret={CORPSECRET}"
+    resp = requests.get(url).json()
+    return resp.get('access_token')
+
+def send_wechat_msg(token, content):
+    url = f"https://qyapi.weixin.qq.com/cgi-bin/message/send?access_token={token}"
+    payload = {
+        "touser": "@all",
+        "msgtype": "markdown",
+        "agentid": int(AGENTID),
+        "markdown": {"content": content}
+    }
+    requests.post(url, json=payload)
+
+def main():
+    # 1. 获取当前用户
+    user_info = requests.get('https://api.github.com/user', headers=GH_HEADERS).json()
+    username = user_info['login']
+
+    # 2. 获取所有仓库并筛选 Fork
+    repos_url = f"https://api.github.com/user/repos?type=owner&per_page=100"
+    repos = requests.get(repos_url, headers=GH_HEADERS).json()
+    forks = [r for r in repos if r.get('fork')]
+
+    if not forks:
+        print("没有找到任何 Fork 的仓库。")
+        return
+
+    msg_lines = ["**GitHub Forks 状态汇报**", f"> 统计时间: {datetime.now(timezone(timedelta(hours=8))).strftime('%Y-%m-%d %H:%M:%S')}\n"]
+
+    # 3. 检查每个 Fork 的状态
+    for fork in forks:
+        repo_name = fork['name']
+        default_branch = fork['default_branch']
+        updated_at = fork['updated_at'][:10]
+        
+        # 获取父仓库信息
+        repo_detail = requests.get(fork['url'], headers=GH_HEADERS).json()
+        parent = repo_detail.get('parent')
+        if not parent:
+            continue
+            
+        parent_owner = parent['owner']['login']
+        parent_branch = parent['default_branch']
+
+        # 比对进度 (Fork 的主分支 vs 上游的主分支)
+        compare_url = f"https://api.github.com/repos/{username}/{repo_name}/compare/{username}:{default_branch}...{parent_owner}:{parent_branch}"
+        compare_res = requests.get(compare_url, headers=GH_HEADERS).json()
+        
+        # ahead_by 表示上游领先 Fork 多少个 commit（即 Fork 落后多少）
+        behind_by = compare_res.get('ahead_by', 0)
+        
+        if behind_by > 0:
+            status = f"<font color=\"warning\">🔴 落后 {behind_by} 个提交</font>"
+        else:
+            status = "<font color=\"info\">🟢 已同步</font>"
+
+        msg_lines.append(f"- [{repo_name}]({fork['html_url']}): 最后更新 `{updated_at}`, {status}")
+
+    # 4. 发送企业微信通知
+    wx_token = get_wechat_token()
+    if wx_token:
+        send_wechat_msg(wx_token, "\n".join(msg_lines))
+        print("消息推送成功！")
+    else:
+        print("获取企业微信 Token 失败！")
+
+if __name__ == "__main__":
+    main()

@@ -28,7 +28,7 @@ jobs:
         GH_TOKEN: ${{ secrets.GH_TOKEN }}
         WECHAT_WEBHOOK: ${{ secrets.WECHAT_WEBHOOK }}
         # 1. 不在微信中输出状态的仓库名单（逗号分隔）
-        EXCLUDE_STATUS_REPOS: 'CloudPaste,excalidraw'
+        EXCLUDE_STATUS_REPOS: 'CloudPaste,excalidraw,logseq-publish,NotionNext,SULLYTEST2-fork,geminicli2api,fork-omnivore'
         # 2. 不自动同步的仓库名单（逗号分隔）
-        EXCLUDE_SYNC_REPOS: 'fork-SullyOS,CloudPaste,excalidraw'
+        EXCLUDE_SYNC_REPOS: 'fork-SullyOS,CloudPaste,excalidraw,logseq-publish,NotionNext,SULLYTEST2-fork,geminicli2api,fork-omnivore'
       run: python check_forks.py

@@ -2,7 +2,7 @@ name: Fork Status Notifier
 
 on:
   schedule:
-    - cron: '0 11 * * *'
+    - cron: '42 23 * * *'
   workflow_dispatch:
 
 jobs:

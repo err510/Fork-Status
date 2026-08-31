@@ -40,7 +40,7 @@
 | 环境变量名称 | 格式 | 示例 | 说明 |
 | :--- | :--- | :--- | :--- |
 | `EXCLUDE_STATUS_REPOS` | 逗号分隔的仓库名 | `'repo-a,repo-b'` | 填入**不需要发送微信提醒**的 Fork 仓库名称 |
-| `EXCLUDE_SYNC_REPOS` | 逗号分隔的仓库名 | `'fork-SullyOS,repo-c'` | 填入**不需要自动同步**的 Fork 仓库名称 |
+| `EXCLUDE_SYNC_REPOS` | 逗号分隔的仓库名 | `'repo-c,repo-d'` | 填入**不需要自动同步**的 Fork 仓库名称 |
 
 ---
 
